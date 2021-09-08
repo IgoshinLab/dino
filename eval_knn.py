@@ -84,6 +84,14 @@ def extract_feature_pipeline(args):
     test_labels = torch.tensor([s[-1] for s in dataset_val.samples]).long()
     # save features and labels
     if args.dump_features and dist.get_rank() == 0:
+        fp = open(os.path.join(args.dump_features, "trainlabels.csv"), "w")
+        for item in dataset_train.class_to_idx:
+            fp.write("%s,%s\n" % (item, dataset_train.class_to_idx[item]))
+        fp.close()
+        fp = open(os.path.join(args.dump_features, "testlabels.csv"), "w")
+        for item in dataset_val.class_to_idx:
+            fp.write("%s,%s\n" % (item, dataset_val.class_to_idx[item]))
+        fp.close()
         torch.save(train_features.cpu(), os.path.join(args.dump_features, "trainfeat.pth"))
         torch.save(test_features.cpu(), os.path.join(args.dump_features, "testfeat.pth"))
         torch.save(train_labels.cpu(), os.path.join(args.dump_features, "trainlabels.pth"))
@@ -194,14 +202,14 @@ if __name__ == '__main__':
         help='Number of NN to use. 20 is usually working the best.')
     parser.add_argument('--temperature', default=0.07, type=float,
         help='Temperature used in the voting coefficient')
-    parser.add_argument('--pretrained_weights', default='', type=str, help="Path to pretrained weights to evaluate.")
+    parser.add_argument('--pretrained_weights', default='/mnt/data/feature_extraction/ckpts/checkpoint.pth', type=str, help="Path to pretrained weights to evaluate.")
     parser.add_argument('--use_cuda', default=True, type=utils.bool_flag,
         help="Should we store the features on GPU? We recommend setting this to False if you encounter OOM")
     parser.add_argument('--arch', default='vit_small', type=str, help='Architecture')
     parser.add_argument('--patch_size', default=16, type=int, help='Patch resolution of the model.')
     parser.add_argument("--checkpoint_key", default="teacher", type=str,
         help='Key to use in the checkpoint (example: "teacher")')
-    parser.add_argument('--dump_features', default=None,
+    parser.add_argument('--dump_features', default='/mnt/data/imgnet/features/',
         help='Path where to save computed features, empty for no saving')
     parser.add_argument('--load_features', default=None, help="""If the features have
         already been computed, where to find them.""")
@@ -209,7 +217,7 @@ if __name__ == '__main__':
     parser.add_argument("--dist_url", default="env://", type=str, help="""url used to set up
         distributed training; see https://pytorch.org/docs/stable/distributed.html""")
     parser.add_argument("--local_rank", default=0, type=int, help="Please ignore and do not set this argument.")
-    parser.add_argument('--data_path', default='/path/to/imagenet/', type=str)
+    parser.add_argument('--data_path', default='/mnt/data/imgnet/', type=str)
     args = parser.parse_args()
 
     utils.init_distributed_mode(args)
