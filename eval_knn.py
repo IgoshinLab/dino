@@ -30,7 +30,7 @@ import vision_transformer as vits
 def extract_feature_pipeline(args):
     # ============ preparing data ... ============
     transform = pth_transforms.Compose([
-        pth_transforms.Resize(256, interpolation=3),
+        pth_transforms.Resize(256, interpolation=3),    # Resize the 2nd shape value to the target value
         pth_transforms.CenterCrop(224),
         pth_transforms.ToTensor(),
         pth_transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
@@ -209,7 +209,7 @@ if __name__ == '__main__':
     parser.add_argument('--patch_size', default=16, type=int, help='Patch resolution of the model.')
     parser.add_argument("--checkpoint_key", default="teacher", type=str,
         help='Key to use in the checkpoint (example: "teacher")')
-    parser.add_argument('--dump_features', default='/mnt/data/imgnet/features/',
+    parser.add_argument('--dump_features', default='/mnt/data/feature_extraction/features/',
         help='Path where to save computed features, empty for no saving')
     parser.add_argument('--load_features', default=None, help="""If the features have
         already been computed, where to find them.""")
@@ -217,7 +217,7 @@ if __name__ == '__main__':
     parser.add_argument("--dist_url", default="env://", type=str, help="""url used to set up
         distributed training; see https://pytorch.org/docs/stable/distributed.html""")
     parser.add_argument("--local_rank", default=0, type=int, help="Please ignore and do not set this argument.")
-    parser.add_argument('--data_path', default='/mnt/data/imgnet/', type=str)
+    parser.add_argument('--data_path', default='/mnt/data/feature_extraction/imgnet', type=str)
     args = parser.parse_args()
 
     utils.init_distributed_mode(args)
